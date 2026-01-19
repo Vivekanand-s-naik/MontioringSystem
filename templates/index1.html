@@ -1,0 +1,324 @@
+<!--<!DOCTYPE html>-->
+<!--<html lang="en">-->
+
+<!--<head>-->
+<!--    <meta charset="UTF-8">-->
+<!--    <meta name="viewport" content="width=device-width, initial-scale=1.0">-->
+<!--    <title>Student Monitoring System</title>-->
+<!--    <style>-->
+<!--        body {-->
+<!--            font-family: sans-serif;-->
+<!--            margin: 0;-->
+<!--            display: flex;-->
+<!--            flex-direction: column;-->
+<!--            min-height: 100vh;-->
+<!--            align-items: center;-->
+<!--            text-align: center;-->
+<!--        }-->
+
+<!--        header {-->
+<!--            padding: 15px;-->
+<!--        }-->
+
+<!--        #container {-->
+<!--            display: grid;-->
+<!--            grid-template-columns: 1fr 1fr;-->
+<!--            gap: 20px;-->
+<!--            justify-content: center;-->
+<!--            width: 90%;-->
+<!--            max-width: 1300px;-->
+<!--        }-->
+
+<!--        .video-container {-->
+<!--            border: 2px solid #ccc;-->
+<!--            box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);-->
+<!--            position: relative;-->
+<!--            text-align: center;-->
+<!--            width: 400px;-->
+<!--            padding: 10px;-->
+<!--        }-->
+
+<!--        .video-container img {-->
+<!--            width: 100%;-->
+<!--            height: 250px;-->
+<!--            object-fit: cover;-->
+<!--        }-->
+
+<!--        #user-data {-->
+<!--            grid-column: span 2;-->
+<!--            padding: 20px;-->
+<!--            border: 2px solid #ccc;-->
+<!--            background-color: #f9f9f9;-->
+<!--            width: 50%;-->
+<!--            margin: auto;-->
+<!--        }-->
+
+<!--        footer {-->
+<!--            background-color: #f0f0f0;-->
+<!--            padding: 10px;-->
+<!--            text-align: center;-->
+<!--            width: 100%;-->
+<!--            margin-top: auto;-->
+<!--        }-->
+
+<!--        @media (max-width: 900px) {-->
+<!--            #container {-->
+<!--                grid-template-columns: 1fr;-->
+<!--            }-->
+<!--            .video-container, #user-data {-->
+<!--                width: 100%;-->
+<!--                max-width: 400px;-->
+<!--            }-->
+<!--        }-->
+<!--    </style>-->
+<!--</head>-->
+
+<!--<body>-->
+<!--    <header>-->
+<!--        <h1>Student Monitoring System</h1>-->
+<!--    </header>-->
+
+<!--    <div id="container">-->
+<!--        <div class="video-container">-->
+<!--            <h2>Face Attendance</h2>-->
+<!--            <img src="{{ url_for('video_feed1') }}" id="video1">-->
+<!--        </div>-->
+
+<!--        <div class="video-container">-->
+<!--            <h2>Pose Detection</h2>-->
+<!--            <img src="{{ url_for('video_feed2') }}" id="video2">-->
+<!--        </div>-->
+
+<!--        <div id="user-data">-->
+<!--            <h2>User Data</h2>-->
+<!--            <div id="user-info">-->
+<!--                <p><strong>Status:</strong> <span id="user-status">Loading...</span></p>-->
+<!--                <p><strong>ID:</strong> <span id="user-id"></span></p>-->
+<!--                <p><strong>Name:</strong> <span id="user-name"></span></p>-->
+<!--                <p><strong>Total Attendance:</strong> <span id="user-attendance"></span></p>-->
+<!--                <p><strong>Last Attendance:</strong> <span id="user-last-attendance"></span></p>-->
+<!--            </div>-->
+<!--        </div>-->
+
+<!--        <div class="video-container">-->
+<!--            <h2>Concentration Monitoring</h2>-->
+<!--            <img src="{{ url_for('video_feed3') }}" id="video3">-->
+<!--        </div>-->
+
+<!--        <div class="video-container">-->
+<!--            <h2>Weapon Detection</h2>-->
+<!--            <img src="{{ url_for('video_feed4') }}" id="video4">-->
+<!--        </div>-->
+<!--    </div>-->
+
+<!--    <footer>-->
+<!--        <p>&copy; 2024 Student Monitoring System</p>-->
+<!--    </footer>-->
+
+<!--    <script>-->
+<!--        function updateUserData() {-->
+<!--            fetch('/get_user_data')-->
+<!--                .then(response => response.json())-->
+<!--                .then(data => {-->
+<!--                    if (data.detected) {-->
+<!--                        document.getElementById('user-status').textContent = data.status;-->
+<!--                        document.getElementById('user-id').textContent = data.id;-->
+<!--                        document.getElementById('user-name').textContent = data.name;-->
+<!--                        document.getElementById('user-attendance').textContent = data.total_attendance;-->
+<!--                        document.getElementById('user-last-attendance').textContent = data.last_attendance_time;-->
+<!--                    } else {-->
+<!--                        document.getElementById('user-status').textContent = data.message;-->
+<!--                        document.getElementById('user-id').textContent = "";-->
+<!--                        document.getElementById('user-name').textContent = "";-->
+<!--                        document.getElementById('user-attendance').textContent = "";-->
+<!--                        document.getElementById('user-last-attendance').textContent = "";-->
+<!--                    }-->
+<!--                })-->
+<!--                .catch(error => {-->
+<!--                    console.error('Error fetching user data:', error);-->
+<!--                    document.getElementById('user-status').textContent = "Error fetching data.";-->
+<!--                });-->
+<!--        }-->
+
+<!--        setInterval(updateUserData, 3000);-->
+<!--        updateUserData();-->
+<!--    </script>-->
+<!--</body>-->
+<!--</html>-->
+
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monitoring System</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            background-color: #f4f4f4;
+        }
+
+        #container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .video-container {
+            margin: 10px;
+            border: 1px solid #ccc;
+            box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
+            position: relative;
+            width: 500px; /* Reduced width */
+            height: 400px; /* Fixed height */
+            overflow: hidden; /* Ensure content fits */
+        }
+
+        .video-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover; /* Maintain aspect ratio */
+        }
+
+        .video-container h2 {
+            position: absolute;
+            top: 0;
+            left: 0;
+            background-color: rgba(0,0,0,0.5);
+            color: white;
+            margin: 0;
+            padding: 5px;
+            width: 100%;
+            box-sizing: border-box;
+            text-align: center;
+            font-size: 14px;
+        }
+
+        #user-data {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 20px;
+            padding: 20px;
+        }
+
+        #user-info {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            padding: 20px;
+            max-width: 400px;
+            width: 100%;
+            text-align: center;
+        }
+
+        #user-info p {
+            margin: 10px 0;
+            color: #333;
+        }
+
+        footer {
+            background-color: #f0f0f0;
+            padding: 10px;
+            text-align: center;
+            margin-top: auto;
+        }
+
+        @media (max-width: 768px) {
+            #container {
+                flex-direction: column;
+            }
+
+            .video-container {
+                width: 100%;
+                max-width: 350px;
+                height: 250px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <h1 style="text-align: center; color: #333;">Citizen Monitoring System</h1>
+    </header>
+    <div id="container">
+        <div class="video-container">
+            <h2>Detection</h2>
+            <img src="{{ url_for('video_feed1') }}" id="video1">
+        </div>
+        <div class="video-container">
+            <h2>Pose Detection</h2>
+            <img src="{{ url_for('video_feed2') }}" id="video2">
+        </div>
+
+        <div class="video-container">
+            <h2> Monitoring</h2>
+            <img src="{{ url_for('video_feed3') }}" id="video3">
+        </div>
+        <div class="video-container">
+            <h2>Room-Monitor</h2>
+            <img src="{{ url_for('video_feed4') }}" id="video4">
+        </div>
+    </div>
+    <div id="user-data">
+        <div id="user-info">
+            <h2 style="color: #2c3e50; margin-bottom: 15px;">User Information</h2>
+            <p><strong>Status:</strong> <span id="user-status">Loading...</span></p>
+            <p><strong>ID:</strong> <span id="user-id"></span></p>
+            <p><strong>Name:</strong> <span id="user-name"></span></p>
+            <p><strong>Total Attendance:</strong> <span id="user-attendance"></span></p>
+            <p><strong>Last Attendance:</strong> <span id="user-last-attendance"></span></p>
+        </div>
+    </div>
+    <footer>
+        <p>&copy; 2024 Student Monitoring System</p>
+    </footer>
+    <script>
+        const video1 = document.getElementById('video1');
+        const userInfoDiv = document.getElementById('user-info');
+        const userStatus = document.getElementById('user-status');
+        const userId = document.getElementById('user-id');
+        const userName = document.getElementById('user-name');
+        const userAttendance = document.getElementById('user-attendance');
+        const userLastAttendance = document.getElementById('user-last-attendance');
+
+        function updateUserData() {
+            fetch('/get_user_data')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.detected) {
+                        userStatus.textContent = data.status;
+                        userId.textContent = data.id;
+                        userName.textContent = data.name;
+                        userAttendance.textContent = data.total_attendance;
+                        userLastAttendance.textContent = data.last_attendance_time;
+                    } else {
+                        userStatus.textContent = data.message;
+                        userId.textContent = "";
+                        userName.textContent = "";
+                        userAttendance.textContent = "";
+                        userLastAttendance.textContent = "";
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching user data:', error);
+                    userStatus.textContent = "Error fetching data.";
+                });
+        }
+
+        setInterval(updateUserData, 3000);
+        updateUserData();
+    </script>
+</body>
+</html>

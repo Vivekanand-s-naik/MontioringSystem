@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Speech to Text Summarizer</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+            background-color: #f4f4f4;
+        }
+        .container {
+            background-color: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        #transcription, #summary {
+            width: 100%;
+            min-height: 100px;
+            margin-bottom: 15px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .button-group {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+        .status {
+            text-align: center;
+            margin-top: 10px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Speech to Text Summarizer</h1>
+
+        <div class="button-group">
+            <button id="startListening">
+                Start Listening
+            </button>
+            <button id="stopListening" disabled>
+                Stop Listening
+            </button>
+        </div>
+
+        <div class="status" id="statusText">
+            Click "Start Listening" to begin
+        </div>
+
+        <h3>Transcription:</h3>
+        <textarea id="transcription" readonly placeholder="Transcribed text will appear here..."></textarea>
+
+        <h3>Summary:</h3>
+        <textarea id="summary" readonly placeholder="Summary will be generated here..."></textarea>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const startButton = document.getElementById('startListening');
+            const stopButton = document.getElementById('stopListening');
+            const transcriptionArea = document.getElementById('transcription');
+            const summaryArea = document.getElementById('summary');
+            const statusText = document.getElementById('statusText');
+
+            let mediaRecorder;
+            let audioChunks = [];
+
+            const startListening = async () => {
+                try {
+                    // Request microphone access
+                    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+
+                    mediaRecorder = new MediaRecorder(stream);
+                    audioChunks = [];
+
+                    mediaRecorder.ondataavailable = (event) => {
+                        audioChunks.push(event.data);
+                    };
+
+                    mediaRecorder.onstop = () => {
+                        const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
+                        sendAudioToServer(audioBlob);
+                    };
+
+                    mediaRecorder.start();
+                    startButton.disabled = true;
+                    stopButton.disabled = false;
+                    statusText.textContent = 'Listening... Speak now.';
+                } catch (err) {
+                    console.error('Error accessing microphone:', err);
+                    statusText.textContent = 'Error accessing microphone.';
+                }
+            };
+
+            const stopListening = () => {
+                if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+                    mediaRecorder.stop();
+                    startButton.disabled = false;
+                    stopButton.disabled = true;
+                    statusText.textContent = 'Processing audio...';
+                }
+            };
+
+            const sendAudioToServer = async (audioBlob) => {
+                const formData = new FormData();
+                formData.append('audio', audioBlob, 'recording.wav');
+
+                try {
+                    const response = await fetch('/transcribe', {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    const data = await response.json();
+
+                    if (data.transcription) {
+                        transcriptionArea.value = data.transcription;
+
+                        // Automatically request summary
+                        const summaryResponse = await fetch('/summarize', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({ text: data.transcription })
+                        });
+
+                        const summaryData = await summaryResponse.json();
+                        summaryArea.value = summaryData.summary || 'Unable to generate summary';
+                        statusText.textContent = 'Transcription and summary complete';
+                    } else {
+                        statusText.textContent = 'Transcription failed';
+                    }
+                } catch (error) {
+                    console.error('Error sending audio:', error);
+                    statusText.textContent = 'Error processing audio';
+                }
+            };
+
+            startButton.addEventListener('click', startListening);
+            stopButton.addEventListener('click', stopListening);
+        });
+    </script>
+</body>
+</html>

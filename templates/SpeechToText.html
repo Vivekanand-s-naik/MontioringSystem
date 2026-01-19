@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Text Summarizer</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+            background-color: #f4f4f4;
+        }
+        .container {
+            background-color: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        #inputText, #summary {
+            width: 100%;
+            min-height: 150px;
+            margin-bottom: 15px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            resize: vertical;
+        }
+        .button-group {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        #fileInput {
+            margin-bottom: 15px;
+        }
+        #loading {
+            text-align: center;
+            color: #666;
+            display: none;
+        }
+        #errorMessage {
+            color: red;
+            text-align: center;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Text Summarizer</h1>
+
+        <form id="summarizeForm" enctype="multipart/form-data">
+            <input type="file" id="fileInput" name="file" accept=".txt">
+
+            <h3>Input Text:</h3>
+            <textarea id="inputText" name="text" placeholder="Enter or upload text to summarize..."></textarea>
+
+            <div class="button-group">
+                <button type="submit" id="summarizeButton">Summarize Text</button>
+                <button type="button" id="clearButton">Clear</button>
+            </div>
+        </form>
+
+        <div id="loading">Processing... Please wait.</div>
+        <div id="errorMessage"></div>
+
+        <h3>Summary:</h3>
+        <textarea id="summary" readonly placeholder="Summary will appear here..."></textarea>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const form = document.getElementById('summarizeForm');
+            const inputText = document.getElementById('inputText');
+            const summaryArea = document.getElementById('summary');
+            const fileInput = document.getElementById('fileInput');
+            const clearButton = document.getElementById('clearButton');
+            const loadingIndicator = document.getElementById('loading');
+            const errorMessage = document.getElementById('errorMessage');
+
+            // File upload handling
+            fileInput.addEventListener('change', (event) => {
+                const file = event.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        inputText.value = e.target.result;
+                    };
+                    reader.readAsText(file);
+                }
+            });
+
+            // Form submission
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault();
+
+                // Reset previous states
+                summaryArea.value = '';
+                errorMessage.textContent = '';
+                loadingIndicator.style.display = 'block';
+
+                // Prepare form data
+                const formData = new FormData(form);
+
+                try {
+                    const response = await fetch('/summarize', {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    const data = await response.json();
+
+                    // Hide loading
+                    loadingIndicator.style.display = 'none';
+
+                    if (response.ok) {
+                        // Display summary
+                        summaryArea.value = data.summary;
+                    } else {
+                        // Display error
+                        errorMessage.textContent = data.error || 'An error occurred';
+                    }
+                } catch (error) {
+                    // Hide loading
+                    loadingIndicator.style.display = 'none';
+
+                    // Display network or unexpected errors
+                    errorMessage.textContent = 'Network error or unexpected issue';
+                    console.error('Error:', error);
+                }
+            });
+
+            // Clear button functionality
+            clearButton.addEventListener('click', () => {
+                inputText.value = '';
+                summaryArea.value = '';
+                fileInput.value = ''; // Reset file input
+                errorMessage.textContent = '';
+            });
+        });
+    </script>
+</body>
+</html>
